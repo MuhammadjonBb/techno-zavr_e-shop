@@ -50,9 +50,9 @@ import ProductList from "@/components/ProductList.vue";
 import BasePagination from "@/components/BasePagination.vue";
 import ProductFilter from "@/components/ProductFilter.vue";
 import PulseLoader from "@/components/PulseLoader.vue";
-// eslint-disable-next-line import/extensions
 import getRightWord from "@/helpers/getRightWord";
-import { API_BASE_URL } from "../config";
+// eslint-disable-next-line import/extensions
+import { API_BASE_URL } from "@/config";
 
 export default {
   // eslint-disable-next-line quotes
@@ -64,13 +64,14 @@ export default {
   },
   data() {
     return {
-      filterPriceFrom: 0,
-      filterPriceTo: 0,
-      filterCategoryId: 0,
+      filterPriceFrom: null,
+      filterPriceTo: null,
+      filterCategoryId: null,
       filterColor: "#",
-      filterColorId: 0,
+      filterColorId: null,
+      filterProps: [],
       page: 1,
-      productsPerPage: 6,
+      productsPerPage: 12,
       productsData: null,
       productsLoading: false,
       productsLoadingFailed: false,
@@ -81,7 +82,7 @@ export default {
       return this.productsData
         ? this.productsData.items.map((product) => ({
             ...product,
-            image: product.image.file.url,
+            image: product.preview.file.url,
           }))
         : [];
     },
@@ -104,6 +105,7 @@ export default {
               categoryId: this.filterCategoryId,
               minPrice: this.filterPriceFrom,
               maxPrice: this.filterPriceTo,
+              props: this.filterProps,
             },
           })
           .then((res) => (this.productsData = res.data))
