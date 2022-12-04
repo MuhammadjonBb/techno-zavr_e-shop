@@ -32,7 +32,7 @@
             <img
               width="570"
               height="570"
-              :src="product.image.file.url"
+              :src="product.preview.file.url"
               :alt="product.title"
             />
           </div>
@@ -40,7 +40,7 @@
 
         <div class="item__info">
           <span class="item__code">Артикул: {{ product.id }}</span>
-          <h2 class="item__title">{{ product.title }}</h2>
+          <h2 class="item__title">{{ productProp.productTitle }}</h2>
           <div class="item__form">
             <form
               class="form"
@@ -48,7 +48,9 @@
               method="POST"
               @submit.prevent="addToCart"
             >
-              <b class="item__price"> {{ product.price | numberFormat }} ₽</b>
+              <b class="item__price">
+                {{ productProp.price | numberFormat }} ₽</b
+              >
 
               <fieldset class="form__block">
                 <legend class="form__legend">Цвет:</legend>
@@ -62,12 +64,12 @@
                       <input
                         class="colors__radio sr-only"
                         type="radio"
-                        :value="color.code"
+                        :value="color.color.title"
                         v-model="currentColor"
                       />
                       <span
                         class="colors__value"
-                        :style="background(color.code)"
+                        :style="background(color.color.code)"
                       >
                       </span>
                     </label>
@@ -75,45 +77,28 @@
                 </ul>
               </fieldset>
 
-              <fieldset
-                class="form__block"
-                v-show="product.category.title === 'Телефоны'"
-              >
-                <legend class="form__legend">Объемб в ГБ:</legend>
+              <fieldset class="form__block" v-if="product.mainProp.id !== 7">
+                <legend class="form__legend">
+                  {{ productProp.propTitle }}
+                </legend>
 
                 <ul class="sizes sizes--primery">
-                  <li class="sizes__item">
+                  <li
+                    class="sizes__item"
+                    v-for="prop in product.offers"
+                    :key="prop.id"
+                  >
                     <label class="sizes__label">
                       <input
                         class="sizes__radio sr-only"
                         type="radio"
-                        name="sizes-item"
-                        value="32"
+                        :value="prop.propValues[0].value"
+                        v-model="productProp.propValue"
+                        @click="setProductData(prop)"
                       />
-                      <span class="sizes__value"> 32gb </span>
-                    </label>
-                  </li>
-                  <li class="sizes__item">
-                    <label class="sizes__label">
-                      <input
-                        class="sizes__radio sr-only"
-                        type="radio"
-                        name="sizes-item"
-                        value="64"
-                      />
-                      <span class="sizes__value"> 64gb </span>
-                    </label>
-                  </li>
-                  <li class="sizes__item">
-                    <label class="sizes__label">
-                      <input
-                        class="sizes__radio sr-only"
-                        type="radio"
-                        name="sizes-item"
-                        value="128"
-                        checked=""
-                      />
-                      <span class="sizes__value"> 128gb </span>
+                      <span class="sizes__value">
+                        {{ prop.propValues[0].value }}
+                      </span>
                     </label>
                   </li>
                 </ul>
@@ -153,12 +138,6 @@
             </li>
             <li class="tabs__item">
               <a class="tabs__link" href="#"> Характеристики </a>
-            </li>
-            <li class="tabs__item">
-              <a class="tabs__link" href="#"> Гарантия </a>
-            </li>
-            <li class="tabs__item">
-              <a class="tabs__link" href="#"> Оплата и доставка </a>
             </li>
           </ul>
 
@@ -240,6 +219,7 @@ export default {
       currentColor: null,
       productAdded: false,
       productAddSending: false,
+      productProp: {},
     };
   },
   computed: {
@@ -251,6 +231,10 @@ export default {
     ...mapActions(["addProductCart"]),
     background(color) {
       return `background-color: ${color}`;
+    },
+    setProductData(value) {
+      this.productProp.productTitle = value.title;
+      this.productProp.price = value.price;
     },
     addToCart() {
       this.productAdded = false;
@@ -270,7 +254,13 @@ export default {
         .get(`${API_BASE_URL}/api/products/${this.$route.params.id}`)
         .then((res) => {
           this.productData = res.data;
-          this.currentColor = res.data.colors[0].code;
+          this.currentColor = res.data.colors[0].color.title;
+          this.productProp = {
+            propTitle: res.data.offers[0].propValues[0].productProp.title,
+            propValue: res.data.offers[0].propValues[0].value,
+            productTitle: res.data.offers[0].title,
+            price: res.data.offers[0].price,
+          };
         })
         .catch(() => (this.productLoadingFailed = true))
         .finally(() => (this.productLoading = false));

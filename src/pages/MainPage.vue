@@ -10,11 +10,13 @@
 
     <div class="content__catalog">
       <ProductFilter
+        :product-list="productsData"
         :price-from.sync="filterPriceFrom"
         :price-to.sync="filterPriceTo"
         :category-id.sync="filterCategoryId"
-        :color.sync="filterColor"
-        :color-id.sync="filterColorId"
+        :color-arr.sync="filterColorArr"
+        :prop-values.sync="filterPropValues"
+        :prop-code.sync="filterPropCode"
         :page.sync="page"
       />
 
@@ -67,9 +69,9 @@ export default {
       filterPriceFrom: null,
       filterPriceTo: null,
       filterCategoryId: null,
-      filterColor: "#",
-      filterColorId: null,
-      filterProps: [],
+      filterColorArr: null,
+      filterPropValues: null,
+      filterPropCode: null,
       page: 1,
       productsPerPage: 12,
       productsData: null,
@@ -101,11 +103,12 @@ export default {
             params: {
               page: this.page,
               limit: this.productsPerPage,
-              colorId: this.filterColorId,
               categoryId: this.filterCategoryId,
               minPrice: this.filterPriceFrom,
               maxPrice: this.filterPriceTo,
-              props: this.filterProps,
+              // eslint-disable-next-line no-template-curly-in-string
+              [`props[${this.filterPropCode}][]`]: this.filterPropValues,
+              "props[color][]": this.filterColorArr,
             },
           })
           .then((res) => (this.productsData = res.data))
@@ -128,7 +131,7 @@ export default {
     filterPriceTo() {
       this.loadProducts();
     },
-    filterColor() {
+    filterColorArr() {
       this.loadProducts();
     },
   },
