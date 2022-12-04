@@ -11,8 +11,12 @@
     <h3 class="product__title">
       {{ item.product.title }}
     </h3>
+    <p class="product__info">
+      {{ item.product.product.mainProp.title }}:
+      <span>{{ item.product.propValues[0].value }}</span>
+    </p>
 
-    <span class="product__code"> Артикул: {{ item.productId }} </span>
+    <span class="product__code"> Артикул: {{ item.productOfferId }} </span>
 
     <div class="product__counter form__counter">
       <DecrementAmount :amount.sync="amount" />

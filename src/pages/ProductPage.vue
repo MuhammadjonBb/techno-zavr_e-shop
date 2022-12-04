@@ -64,7 +64,7 @@
                       <input
                         class="colors__radio sr-only"
                         type="radio"
-                        :value="color.color.title"
+                        :value="color.color.id"
                         v-model="currentColor"
                       />
                       <span
@@ -200,7 +200,7 @@ import IncrementAmount from "@/components/IncrementAmount.vue";
 import PulseLoader from "@/components/PulseLoader.vue";
 import RollingLoader from "@/components/RollingLoader.vue";
 import NotFoundPage from "@/pages/NotFoundPage.vue";
-import { API_BASE_URL } from "../config";
+import { API_BASE_URL } from "@/config";
 
 export default {
   components: {
@@ -235,13 +235,15 @@ export default {
     setProductData(value) {
       this.productProp.productTitle = value.title;
       this.productProp.price = value.price;
+      this.productProp.propId = value.id;
     },
     addToCart() {
       this.productAdded = false;
       this.productAddSending = true;
       this.addProductCart({
-        productId: this.product.id,
+        productOfferId: this.productProp.propId,
         amount: this.productAmount,
+        colorId: this.currentColor,
       }).then(() => {
         this.productAdded = true;
         this.productAddSending = false;
@@ -254,12 +256,13 @@ export default {
         .get(`${API_BASE_URL}/api/products/${this.$route.params.id}`)
         .then((res) => {
           this.productData = res.data;
-          this.currentColor = res.data.colors[0].color.title;
+          this.currentColor = res.data.colors[0].color.id;
           this.productProp = {
             propTitle: res.data.offers[0].propValues[0].productProp.title,
             propValue: res.data.offers[0].propValues[0].value,
             productTitle: res.data.offers[0].title,
             price: res.data.offers[0].price,
+            propId: res.data.offers[0].id,
           };
         })
         .catch(() => (this.productLoadingFailed = true))

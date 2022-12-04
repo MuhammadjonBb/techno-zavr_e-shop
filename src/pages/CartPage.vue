@@ -1,4 +1,4 @@
-<template>
+  <template>
   <!-- eslint-disable vuejs-accessibility/form-control-has-label  -->
   <main class="content container">
     <div class="content__top">

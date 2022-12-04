@@ -1,3 +1,4 @@
+/* eslint-disable prefer-destructuring */
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
@@ -35,21 +36,22 @@ export default new Vuex.Store({
     },
     syncCartProducts(state) {
       state.cartProducts = state.cartProductsData.map((item) => ({
-        productId: item.product.id,
+        productOfferId: item.productOffer.id,
         amount: item.quantity,
+        colorId: item.color.id,
       }));
     },
   },
   getters: {
     cartDetailProducts(state) {
       return state.cartProducts.map((item) => {
-        // eslint-disable-next-line prefer-destructuring
-        const product = state.cartProductsData.find((p) => p.product.id === item.productId).product;
+        // eslint-disable-next-line max-len
+        const product = state.cartProductsData.find((p) => p.productOffer.id === item.productOfferId).productOffer;
         return {
           ...item,
           product: {
             ...product,
-            image: product.image.file.url,
+            image: product.product.preview.file.url,
           },
         };
       });
@@ -88,11 +90,12 @@ export default new Vuex.Store({
           context.commit('syncCartProducts');
         });
     },
-    addProductCart(context, { productId, amount }) {
+    addProductCart(context, { productOfferId, amount, colorId }) {
       return axios
         .post(`${API_BASE_URL}/api/baskets/products`, {
-          productId,
+          productOfferId,
           quantity: amount,
+          colorId,
         }, {
           params: {
             userAccessKey: context.state.userAccessKey,
