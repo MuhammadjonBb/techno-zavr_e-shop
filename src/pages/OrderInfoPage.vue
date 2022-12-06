@@ -36,7 +36,10 @@
             <OrderInfoItem title="Адрес доставки" :value="orderInfo.address" />
             <OrderInfoItem title="Телефон" :value="orderInfo.phone" />
             <OrderInfoItem title="Email" :value="orderInfo.email" />
-            <OrderInfoItem title="Способ оплаты" value="картой при получении" />
+            <OrderInfoItem
+              title="Способ оплаты"
+              :value="orderInfo.paymentType"
+            />
           </ul>
         </div>
 
@@ -48,18 +51,27 @@
               :key="item.id"
             >
               <h3>
-                {{ item.product.title }}
+                {{ item.productOffer.title }}
                 <b class="product-amount" v-show="item.quantity > 1"
                   >x{{ item.quantity }}</b
                 >
               </h3>
-              <b> {{ item.product.price | numberFormat }} ₽</b>
+              <b> {{ item.price | numberFormat }} ₽</b>
               <span>Артикул: {{ item.id }}</span>
             </li>
           </ul>
 
           <div class="cart__total">
-            <p>Доставка: <b>500 ₽</b></p>
+            <p>
+              {{ orderInfo.deliveryType.title }}:
+              <b
+                >{{
+                  orderInfo.deliveryType.price > 0
+                    ? `${orderInfo.deliveryType.price} ₽`
+                    : "бесплатно"
+                }}
+              </b>
+            </p>
             <p>
               Итого: {{ getRightWord(orderInfo.basket.items.length) }} на сумму
               <b>{{ orderInfo.totalPrice | numberFormat }} ₽</b>

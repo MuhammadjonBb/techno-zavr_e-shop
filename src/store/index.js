@@ -2,7 +2,7 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import axios from 'axios';
-import { API_BASE_URL } from '../config';
+import { API_BASE_URL } from '@/config';
 
 Vue.use(Vuex);
 
@@ -21,12 +21,13 @@ export default new Vuex.Store({
       state.cartProducts = [];
       state.cartProductsData = [];
     },
-    updateCartProductAmount(state, { productId, amount }) {
-      const item = state.cartProducts.find((el) => el.productId === productId);
+    updateCartProductAmount(state, { cartProductId, amount }) {
+      const item = state.cartProducts.find((el) => el.cartProductId === cartProductId);
       if (item) item.amount = amount;
     },
-    deleteCartProduct(state, productId) {
-      state.cartProducts = state.cartProducts.filter((item) => item.productId !== productId);
+    deleteCartProduct(state, cartProductId) {
+      // eslint-disable-next-line max-len
+      state.cartProducts = state.cartProducts.filter((item) => item.cartProductId !== cartProductId);
     },
     updateUserAccessKey(state, accessKey) {
       state.userAccessKey = accessKey;
@@ -39,6 +40,7 @@ export default new Vuex.Store({
         productOfferId: item.productOffer.id,
         amount: item.quantity,
         colorId: item.color.id,
+        cartProductId: item.id,
       }));
     },
   },
@@ -46,7 +48,7 @@ export default new Vuex.Store({
     cartDetailProducts(state) {
       return state.cartProducts.map((item) => {
         // eslint-disable-next-line max-len
-        const product = state.cartProductsData.find((p) => p.productOffer.id === item.productOfferId).productOffer;
+        const product = state.cartProductsData.find((p) => p.id === item.cartProductId).productOffer;
         return {
           ...item,
           product: {
@@ -106,8 +108,8 @@ export default new Vuex.Store({
           context.commit('syncCartProducts');
         });
     },
-    deleteProductCart(context, productId) {
-      context.commit('deleteCartProduct', productId);
+    deleteProductCart(context, cartProductId) {
+      context.commit('deleteCartProduct', cartProductId);
 
       return axios
         .delete(`${API_BASE_URL}/api/baskets/products`, {
@@ -115,7 +117,7 @@ export default new Vuex.Store({
             userAccessKey: context.state.userAccessKey,
           },
           data: {
-            productId,
+            basketItemId: cartProductId,
           },
         }).then((res) => {
           context.commit('updateCardProductsData', res.data.items);
@@ -125,16 +127,15 @@ export default new Vuex.Store({
           context.commit('syncCartProducts');
         });
     },
-    updateCartProductAmount(context, { productId, amount }) {
-      context.commit('updateCartProductAmount', { productId, amount });
+    updateCartProductAmount(context, { cartProductId, amount }) {
+      context.commit('updateCartProductAmount', { cartProductId, amount });
 
       if (amount < 1) {
         return null;
       }
-
       return axios
         .put(`${API_BASE_URL}/api/baskets/products`, {
-          productId,
+          basketItemId: cartProductId,
           quantity: amount,
         }, {
           params: {

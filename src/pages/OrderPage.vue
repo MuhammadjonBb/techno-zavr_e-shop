@@ -1,6 +1,6 @@
 <template>
   <!-- eslint-disable vuejs-accessibility/label-has-for  -->
-  <main class="content container">
+  <main class="content container" style="padding-bottom: 60px">
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
@@ -70,61 +70,19 @@
           </div>
 
           <div class="cart__options">
-            <h3 class="cart__title">Доставка</h3>
-            <ul class="cart__options options">
-              <li class="options__item">
-                <label class="options__label">
-                  <input
-                    class="options__radio sr-only"
-                    type="radio"
-                    name="delivery"
-                    value="0"
-                  />
-                  <span class="options__value">
-                    Самовывоз <b>бесплатно</b>
-                  </span>
-                </label>
-              </li>
-              <li class="options__item">
-                <label class="options__label">
-                  <input
-                    class="options__radio sr-only"
-                    type="radio"
-                    name="delivery"
-                    value="500"
-                    checked=""
-                  />
-                  <span class="options__value"> Курьером <b>500 ₽</b> </span>
-                </label>
-              </li>
-            </ul>
+            <OrderOptionsBlock
+              option-title="Доставка"
+              :option-data="deliveryTypesData"
+              :is-delivery-option="true"
+              :option.sync="formData.deliveryTypeId"
+            />
 
-            <h3 class="cart__title">Оплата</h3>
-            <ul class="cart__options options">
-              <li class="options__item">
-                <label class="options__label">
-                  <input
-                    class="options__radio sr-only"
-                    type="radio"
-                    name="pay"
-                    value="card"
-                    checked=""
-                  />
-                  <span class="options__value"> Картой при получении </span>
-                </label>
-              </li>
-              <li class="options__item">
-                <label class="options__label">
-                  <input
-                    class="options__radio sr-only"
-                    type="radio"
-                    name="pay"
-                    value="cash"
-                  />
-                  <span class="options__value"> Наличными при получении </span>
-                </label>
-              </li>
-            </ul>
+            <OrderOptionsBlock
+              option-title="Оплата"
+              :option-data="paymentsTypesData"
+              :is-delivery-option="false"
+              :option.sync="formData.paymentTypeId"
+            />
           </div>
         </div>
 
@@ -133,7 +91,7 @@
             <li
               class="cart__order"
               v-for="product in products"
-              :key="product.productId"
+              :key="product.product.id"
             >
               <h3>
                 {{ product.product.title }}
@@ -141,13 +99,20 @@
                   >x{{ product.amount }}</b
                 >
               </h3>
-              <b>18 990 ₽</b>
-              <span>Артикул: {{ product.productId }}</span>
+              <b>{{ product.product.price | numberFormat }} ₽</b>
+              <span>Артикул: {{ product.product.id }}</span>
             </li>
           </ul>
 
-          <div class="cart__total">
-            <p>Доставка: <b>500 ₽</b></p>
+          <div class="cart__total" v-if="deliveryTypesData">
+            <p v-if="formData.deliveryTypeId == 2">
+              {{ deliveryTypesData[1].title }}:
+              <b>{{ deliveryTypesData[1].price }} ₽</b>
+            </p>
+            <p v-else>
+              {{ deliveryTypesData[0].title }}:
+              <b>бесплатно</b>
+            </p>
             <p>
               Итого: {{ getRightWord(products.length) }} на сумму
               <b>{{ totalPrice | numberFormat }} ₽</b>
@@ -195,19 +160,30 @@ import BaseFormText from "@/components/BaseFormText.vue";
 import BaseFormTextarea from "@/components/BaseFormTextarea.vue";
 import { API_BASE_URL } from "@/config";
 import RollingLoader from "@/components/RollingLoader.vue";
+import OrderOptionsBlock from "@/components/OrderOptionsBlock.vue";
 
 export default {
   data() {
     return {
-      formData: {},
+      formData: {
+        deliveryTypeId: 1,
+        paymentTypeId: 1,
+      },
       formError: {},
       formErrorMessage: null,
       submitBtnDefaultText: "Оформить заказ",
       submitBtnLoadingText: "Оформляем заказ...",
       orderResponseLoading: false,
+      deliveryTypesData: null,
+      paymentsTypesData: null,
     };
   },
-  components: { BaseFormText, BaseFormTextarea, RollingLoader },
+  components: {
+    BaseFormText,
+    BaseFormTextarea,
+    RollingLoader,
+    OrderOptionsBlock,
+  },
   computed: {
     ...mapGetters({
       products: "cartDetailProducts",
@@ -242,10 +218,29 @@ export default {
         // eslint-disable-next-line no-return-assign
         .finally(() => (this.orderResponseLoading = false));
     },
+    loadDeliveryTypes() {
+      axios
+        .get(`${API_BASE_URL}/api/deliveries`)
+        // eslint-disable-next-line no-return-assign
+        .then((res) => (this.deliveryTypesData = res.data));
+    },
+    loadPaymentsTypes() {
+      axios
+        .get(
+          // eslint-disable-next-line comma-dangle
+          `${API_BASE_URL}/api/payments?deliveryTypeId=${this.formData.deliveryTypeId}`
+        )
+        // eslint-disable-next-line no-return-assign
+        .then((res) => (this.paymentsTypesData = res.data));
+    },
     getRightWord,
   },
   filters: {
     numberFormat,
+  },
+  created() {
+    this.loadDeliveryTypes();
+    this.loadPaymentsTypes();
   },
 };
 </script>
