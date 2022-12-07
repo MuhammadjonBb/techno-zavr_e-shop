@@ -143,10 +143,9 @@
 
           <div class="item__content">
             <p>
-              Навигация GPS, ГЛОНАСС, BEIDOU Galileo и QZSS<br />
-              Синхронизация со смартфоном<br />
-              Связь по Bluetooth Smart, ANT+ и Wi-Fi<br />
-              Поддержка сторонних приложений<br />
+              <span v-for="item in product.specifications" :key="item.id">
+                {{ item.title }}: {{ item.value }}<br />
+              </span>
             </p>
 
             <a href="#"> Все характеристики </a>
@@ -200,6 +199,7 @@ import IncrementAmount from "@/components/IncrementAmount.vue";
 import PulseLoader from "@/components/PulseLoader.vue";
 import RollingLoader from "@/components/RollingLoader.vue";
 import NotFoundPage from "@/pages/NotFoundPage.vue";
+import background from "@/helpers/returnBackground";
 import { API_BASE_URL } from "@/config";
 
 export default {
@@ -229,9 +229,7 @@ export default {
   },
   methods: {
     ...mapActions(["addProductCart"]),
-    background(color) {
-      return `background-color: ${color}`;
-    },
+    background,
     setProductData(value) {
       this.productProp.productTitle = value.title;
       this.productProp.price = value.price;

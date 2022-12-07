@@ -60,8 +60,8 @@
               <input
                 class="colors__radio sr-only"
                 type="checkbox"
-                :value="color.code"
-                @click="pushColor(color.title)"
+                :value="color.title"
+                v-model="currentColorArr"
               />
               <span class="colors__value" :style="background(color.code)">
               </span>
@@ -90,7 +90,7 @@
                 class="check-list__check sr-only"
                 type="checkbox"
                 :value="value?.value"
-                @click="pushPropValue(value?.value)"
+                v-model="currentPropValues"
               />
               <span class="check-list__desc">
                 {{ value?.value }}
@@ -105,7 +105,6 @@
         Применить
       </button>
       <button
-        v-show="displayResetBtn"
         class="filter__reset button button--second"
         type="button"
         @click.prevent="reset()"
@@ -118,6 +117,7 @@
 
 <script>
 /* eslint-disable quotes */
+import background from "@/helpers/returnBackground";
 import axios from "axios";
 import { API_BASE_URL } from "@/config";
 
@@ -145,7 +145,6 @@ export default {
       currentPropCode: null,
       categoriesData: null,
       colorsData: null,
-      displayResetBtn: false,
     };
   },
   computed: {
@@ -159,15 +158,12 @@ export default {
   watch: {
     priceFrom(value) {
       this.currentPriceFrom = value;
-      this.displayResetBtn = true;
     },
     priceTo(value) {
       this.currentPriceTo = value;
-      this.displayResetBtn = true;
     },
     categoryId(value) {
       this.currentCategoryId = value;
-      this.displayResetBtn = true;
     },
     currentCategoryId: "getCurrentCategoryData",
   },
@@ -185,14 +181,12 @@ export default {
       this.$emit("update:priceFrom", null);
       this.$emit("update:priceTo", null);
       this.$emit("update:categoryId", 0);
-      this.$emit("update:colorArr", null);
+      this.$emit("update:colorArr", []);
       this.$emit("update:propValues", null);
       this.categoryDataLoadingStatus = "null";
-      this.displayResetBtn = false;
+      this.currentColorArr = [];
     },
-    background(color) {
-      return `background-color: ${color}`;
-    },
+    background,
     loadCategories() {
       axios
         .get(`${API_BASE_URL}/api/productCategories`)
@@ -206,23 +200,6 @@ export default {
         .then((res) => {
           this.colorsData = res.data;
         });
-    },
-    pushColor(color) {
-      this.displayResetBtn = true;
-      if (this.currentColorArr.includes(color)) {
-        this.currentColorArr = this.currentColorArr.filter(
-          // eslint-disable-next-line comma-dangle
-          (thisColor) => thisColor !== color
-        );
-      } else this.currentColorArr.push(color);
-    },
-    pushPropValue(value) {
-      if (this.currentPropValues.includes(value)) {
-        this.currentPropValues = this.currentPropValues.filter(
-          // eslint-disable-next-line comma-dangle
-          (propValue) => propValue !== value
-        );
-      } else this.currentPropValues.push(value);
     },
     getCurrentCategoryData() {
       if (this.currentCategoryId === 0) return;
@@ -238,7 +215,6 @@ export default {
         // eslint-disable-next-line no-return-assign
         .finally(() => {
           this.categoryDataLoadingStatus = false;
-          this.displayResetBtn = true;
         });
     },
   },

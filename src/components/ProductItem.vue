@@ -38,8 +38,8 @@
           <input
             class="colors__radio sr-only"
             type="radio"
-            :value="color.color.code"
-            v-model="currentColor"
+            :value="color.color.id"
+            v-model="currentColorId"
           />
           <span
             class="colors__value"
@@ -50,6 +50,15 @@
         </label>
       </li>
     </ul>
+    <button
+      class="button button--catalog"
+      :disabled="productAddSending"
+      type="submit"
+      @click.prevent="addToCart"
+    >
+      В корзину
+    </button>
+    <div v-show="productAdded">Товар добавлен в корзину</div>
   </li>
 </template>
 
@@ -58,6 +67,8 @@
 /* eslint-disable import/no-extraneous-dependencies */
 /* eslint-disable quotes */
 import numberFormat from "@/helpers/numberFormat";
+import { mapActions } from "vuex";
+import background from "@/helpers/returnBackground";
 
 export default {
   props: {
@@ -65,21 +76,39 @@ export default {
   },
   data() {
     return {
-      currentColor: this.product.colors[0].color.code,
+      productAdded: false,
+      productAddSending: false,
+      currentColorId: this.product.colors[0].color.id,
       currentProp: {
         prop: this.product.offers[0].propValues[0].value,
         title: this.product.offers[0].title,
         price: this.product.offers[0].price,
+        offerId: this.product.offers[0].id,
       },
     };
   },
   methods: {
-    background(color) {
-      return `background-color: ${color}`;
-    },
+    ...mapActions(["addProductCart"]),
+    background,
     showCurrProductData(value) {
       this.currentProp.title = value.title;
       this.currentProp.price = value.price;
+      this.currentProp.offerId = value.id;
+    },
+    addToCart() {
+      this.productAdded = false;
+      this.productAddSending = true;
+      this.addProductCart({
+        productOfferId: this.currentProp.offerId,
+        amount: 1,
+        colorId: this.currentColorId,
+      }).then(() => {
+        this.productAdded = true;
+        this.productAddSending = false;
+        setTimeout(() => {
+          this.productAdded = false;
+        }, 3000);
+      });
     },
   },
   filters: {
