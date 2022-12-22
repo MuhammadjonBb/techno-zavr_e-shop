@@ -1,21 +1,21 @@
 <template>
   <li class="cart__item product">
     <div class="product__pic">
-      <img
-        :src="item.product.image"
-        width="120"
-        height="120"
-        :alt="item.product.title"
-      />
+      <img :src="item.product.image" width="120" height="120" :alt="item.product.title" />
     </div>
     <h3 class="product__title">
       {{ item.product.title }}
     </h3>
-    <p class="product__info">
-      {{ item.product.product.mainProp.title }}:
-      <span>{{ item.product.propValues[0].value }}</span>
-    </p>
-
+    <div class="product__info">
+      <p class="product__info-item" v-show="item.product.product.mainProp.id !== 7">
+        Цвет:
+        <span>{{ color }}</span>
+      </p>
+      <p class="product__info-item">
+        {{ item.product.product.mainProp.title }}:
+        <span>{{ item.product.propValues[0].value }}</span>
+      </p>
+    </div>
     <span class="product__code"> Артикул: {{ item.productOfferId }} </span>
 
     <div class="product__counter form__counter">
@@ -26,9 +26,7 @@
       <IncrementAmount :amount.sync="amount" />
     </div>
 
-    <b class="product__price">
-      {{ (item.amount * item.product.price) | numberFormat }} ₽
-    </b>
+    <b class="product__price"> {{ (item.amount * item.product.price) | numberFormat }} ₽ </b>
 
     <button
       class="product__del button-del"
@@ -56,6 +54,11 @@ export default {
   filters: { numberFormat },
   props: ["item"],
   computed: {
+    color() {
+      // eslint-disable-next-line max-len
+      return this.item.product.product.colors.find((color) => color.id === this.item.colorId).color
+        .title;
+    },
     amount: {
       get() {
         return this.item.amount;
@@ -69,10 +72,16 @@ export default {
     },
   },
   methods: {
-    // ...mapMutations({
-    //   deleteProduct: "deleteCartProduct",
-    // }),
     ...mapActions(["deleteProductCart"]),
   },
 };
 </script>
+<style>
+.product__info-item {
+  margin: 0;
+}
+
+.product__info-item:not(:last-child) {
+  margin-bottom: 5px;
+}
+</style>

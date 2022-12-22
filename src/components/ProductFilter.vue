@@ -3,12 +3,7 @@
   <aside class="filter">
     <h2 class="filter__title">Фильтры</h2>
 
-    <form
-      class="filter__form form"
-      action="#"
-      method="get"
-      @submit.prevent="submit()"
-    >
+    <form class="filter__form form" action="#" method="get" @submit.prevent="submit()">
       <fieldset class="form__block">
         <legend class="form__legend">Цена</legend>
         <label class="form__label form__label--price">
@@ -21,12 +16,7 @@
           <span class="form__value">От</span>
         </label>
         <label class="form__label form__label--price">
-          <input
-            class="form__input"
-            type="text"
-            name="max-price"
-            v-model.number="currentPriceTo"
-          />
+          <input class="form__input" type="text" name="max-price" v-model.number="currentPriceTo" />
           <span class="form__value">До</span>
         </label>
       </fieldset>
@@ -41,11 +31,7 @@
             v-model.number="currentCategoryId"
           >
             <option value="0">Все категории</option>
-            <option
-              :value="category.id"
-              v-for="category in categories"
-              :key="category.id"
-            >
+            <option :value="category.id" v-for="category in categories" :key="category.id">
               {{ category.title }}
             </option>
           </select>
@@ -63,8 +49,7 @@
                 :value="color.title"
                 v-model="currentColorArr"
               />
-              <span class="colors__value" :style="background(color.code)">
-              </span>
+              <span class="colors__value" :style="background(color.code)"> </span>
             </label>
           </li>
         </ul>
@@ -81,8 +66,7 @@
         <ul class="check-list">
           <li
             class="check-list__item"
-            v-for="(value, index) in currentCategoryData?.productProps[0]
-              ?.availableValues"
+            v-for="(value, index) in currentCategoryData?.productProps[0]?.availableValues"
             :key="index"
           >
             <label class="check-list__label">
@@ -101,10 +85,9 @@
         </ul>
       </fieldset>
 
-      <button class="filter__submit button button--primery" type="submit">
-        Применить
-      </button>
+      <button class="filter__submit button button--primery" type="submit">Применить</button>
       <button
+        v-show="isResetBtnVisible"
         class="filter__reset button button--second"
         type="button"
         @click.prevent="reset()"
@@ -145,6 +128,7 @@ export default {
       currentPropCode: null,
       categoriesData: null,
       colorsData: null,
+      isResetBtnVisible: false,
     };
   },
   computed: {
@@ -176,6 +160,7 @@ export default {
       this.$emit("update:propValues", this.currentPropValues);
       this.$emit("update:propCode", this.currentPropCode);
       this.$emit("update:page", 1);
+      this.isResetBtnVisible = true;
     },
     reset() {
       this.$emit("update:priceFrom", null);
@@ -185,6 +170,7 @@ export default {
       this.$emit("update:propValues", null);
       this.categoryDataLoadingStatus = "null";
       this.currentColorArr = [];
+      this.isResetBtnVisible = false;
     },
     background,
     loadCategories() {
