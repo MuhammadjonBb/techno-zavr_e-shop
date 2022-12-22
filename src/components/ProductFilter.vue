@@ -55,14 +55,7 @@
         </ul>
       </fieldset>
 
-      <fieldset class="form__block" v-if="!categoryDataLoadingStatus">
-        <legend class="form__legend">
-          {{
-            currentCategoryData?.productProps.length
-              ? currentCategoryData?.productProps[0]?.title
-              : "Нет дополнительных характеристик"
-          }}
-        </legend>
+      <fieldset v-show="!categoryDataLoadingStatus && currentCategoryData" class="form__block">
         <ul class="check-list">
           <li
             class="check-list__item"
@@ -150,6 +143,12 @@ export default {
       this.currentCategoryId = value;
     },
     currentCategoryId: "getCurrentCategoryData",
+    "$route.query.categoryId": {
+      handler() {
+        this.currentCategoryId = this.$route.query.categoryId;
+      },
+      immediate: true,
+    },
   },
   methods: {
     submit() {
@@ -187,8 +186,14 @@ export default {
           this.colorsData = res.data;
         });
     },
+    // eslint-disable-next-line consistent-return
     getCurrentCategoryData() {
-      if (this.currentCategoryId === 0) return;
+      this.$router.push({ query: { categoryId: this.currentCategoryId } }).catch(() => {});
+      // eslint-disable-next-line eqeqeq
+      if (this.currentCategoryId == 0) {
+        this.currentCategoryData = null;
+        return;
+      }
       this.categoryDataLoadingStatus = true;
       this.currentPropValues = [];
       axios

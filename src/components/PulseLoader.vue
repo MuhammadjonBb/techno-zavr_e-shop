@@ -1,5 +1,5 @@
 <template>
-  <div class="loader catalog__loader">
+  <div class="loader full-page-loader">
     <svg
       xmlns="http://www.w3.org/2000/svg"
       xmlns:xlink="http://www.w3.org/1999/xlink"
@@ -112,7 +112,7 @@
 </template>
 
 <style>
-.catalog__loader {
+.full-page-loader {
   position: absolute;
   top: 0;
   left: 0;
