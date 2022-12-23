@@ -85,7 +85,11 @@
                 <div class="form__counter">
                   <DecrementAmount :amount.sync="productAmount" />
                   <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-                  <input type="text" v-model.number="productAmount" />
+                  <input
+                    type="number"
+                    v-model.number="productAmount"
+                    class="disable-input-arrows"
+                  />
                   <IncrementAmount :amount.sync="productAmount" />
                 </div>
 
@@ -249,3 +253,16 @@ export default {
   },
 };
 </script>
+
+<style>
+.disable-input-arrows::-webkit-outer-spin-button,
+.disable-input-arrows::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+.disable-input-arrows[type="number"] {
+  -moz-appearance: textfield;
+}
+</style>

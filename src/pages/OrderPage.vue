@@ -4,14 +4,10 @@
     <div class="content__top">
       <ul class="breadcrumbs">
         <li class="breadcrumbs__item">
-          <router-link class="breadcrumbs__link" :to="{ name: 'main' }">
-            Каталог
-          </router-link>
+          <router-link class="breadcrumbs__link" :to="{ name: 'main' }"> Каталог </router-link>
         </li>
         <li class="breadcrumbs__item">
-          <router-link class="breadcrumbs__link" :to="{ name: 'cart' }">
-            Корзина
-          </router-link>
+          <router-link class="breadcrumbs__link" :to="{ name: 'cart' }"> Корзина </router-link>
         </li>
         <li class="breadcrumbs__item">
           <a class="breadcrumbs__link"> Оформление заказа </a>
@@ -23,12 +19,7 @@
     </div>
 
     <section class="cart">
-      <form
-        class="cart__form form"
-        action="#"
-        method="POST"
-        @submit.prevent="order()"
-      >
+      <form class="cart__form form" action="#" method="POST" @submit.prevent="order()">
         <div class="cart__field">
           <div class="cart__data">
             <BaseFormText
@@ -46,8 +37,9 @@
             />
 
             <BaseFormText
+              :isPhone="true"
               title="Телефон"
-              placeholder="Введите ваш телефон"
+              placeholder="+7"
               v-model="formData.phone"
               :error="formError.phone"
               type="tel"
@@ -88,16 +80,10 @@
 
         <aside class="cart__block">
           <ul class="cart__orders">
-            <li
-              class="cart__order"
-              v-for="product in products"
-              :key="product.product.id"
-            >
+            <li class="cart__order" v-for="(product, index) in products" :key="index">
               <h3>
                 {{ product.product.title }}
-                <b class="product-amount" v-show="product.amount > 1"
-                  >x{{ product.amount }}</b
-                >
+                <b class="product-amount" v-show="product.amount > 1">x{{ product.amount }}</b>
               </h3>
               <b>{{ product.product.price | numberFormat }} ₽</b>
               <span>Артикул: {{ product.product.id }}</span>
@@ -125,9 +111,7 @@
             :disabled="orderResponseLoading"
           >
             <!-- Кнопка оформления заказа -->
-            {{
-              orderResponseLoading ? submitBtnLoadingText : submitBtnDefaultText
-            }}
+            {{ orderResponseLoading ? submitBtnLoadingText : submitBtnDefaultText }}
             <RollingLoader
               v-show="orderResponseLoading"
               :width="40"

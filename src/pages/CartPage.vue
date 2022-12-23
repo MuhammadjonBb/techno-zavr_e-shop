@@ -1,8 +1,6 @@
 <template>
   <!-- eslint-disable vuejs-accessibility/form-control-has-label  -->
   <div>
-    <!-- <main v-if="products.length">
-    </main> -->
     <!-- eslint-disable-next-line vue/valid-v-else -->
     <main class="content container">
       <div class="content__top">
@@ -24,8 +22,9 @@
       <section class="cart">
         <form class="cart__form form" action="#" method="POST">
           <div class="cart__field" style="position: relative">
-            <pulse-loader v-if="!products.length" style="transform: scale(0.8)" />
-            <ul class="cart__list" v-else>
+            <!-- problem -->
+            <pulse-loader v-if="!products" style="transform: scale(0.6)" />
+            <ul class="cart__list">
               <CartItem v-for="item in products" :key="item.productId" :item="item" />
             </ul>
           </div>

@@ -21,7 +21,7 @@
     <div class="product__counter form__counter">
       <DecrementAmount :amount.sync="amount" />
       <!-- eslint-disable-next-line vuejs-accessibility/form-control-has-label -->
-      <input type="text" v-model.number="amount" name="count" />
+      <input type="number" v-model.number="amount" name="count" class="disable-input-arrows" />
 
       <IncrementAmount :amount.sync="amount" />
     </div>

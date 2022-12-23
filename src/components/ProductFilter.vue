@@ -145,7 +145,7 @@ export default {
     currentCategoryId: "getCurrentCategoryData",
     "$route.query.categoryId": {
       handler() {
-        this.currentCategoryId = this.$route.query.categoryId;
+        this.currentCategoryId = this.$route.query.categoryId || 0;
       },
       immediate: true,
     },
@@ -202,6 +202,9 @@ export default {
         .then((res) => {
           this.currentCategoryData = res.data;
           this.currentPropCode = res.data.productProps[0]?.code;
+        })
+        .catch(() => {
+          this.currentCategoryId = 0;
         })
         // eslint-disable-next-line no-return-assign
         .finally(() => {
