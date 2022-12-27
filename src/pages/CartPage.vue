@@ -22,9 +22,8 @@
       <section class="cart">
         <form class="cart__form form" action="#" method="POST">
           <div class="cart__field" style="position: relative">
-            <!-- problem -->
-            <pulse-loader v-if="!products" style="transform: scale(0.6)" />
-            <ul class="cart__list">
+            <pulse-loader v-if="isCartLoading" style="transform: scale(0.6)" />
+            <ul class="cart__list" v-else>
               <CartItem v-for="item in products" :key="item.productId" :item="item" />
             </ul>
           </div>
@@ -66,6 +65,9 @@ export default {
   },
   components: { CartItem, PulseLoader },
   computed: {
+    isCartLoading() {
+      return this.$store.state.isCartLoading;
+    },
     ...mapGetters({
       products: "cartDetailProducts",
       totalPrice: "cartTotalPrice",

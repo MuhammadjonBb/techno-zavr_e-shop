@@ -2,11 +2,11 @@
 import Vue from 'vue';
 import Vuex from 'vuex';
 import {
-  loadOrderInfo,
-  loadCart,
-  addProductCart,
-  deleteProductCart,
-  updateCartProductAmount,
+  getOrderInfo,
+  getCart,
+  postProductCart,
+  deleteProductCartRequest,
+  putCartProductAmount,
 } from '@/api';
 
 Vue.use(Vuex);
@@ -17,8 +17,12 @@ export default new Vuex.Store({
     userAccessKey: null,
     cartProductsData: [],
     orderInfo: null,
+    isCartLoading: false,
   },
   mutations: {
+    updadeIsCartLoading(state) {
+      state.isCartLoading = !state.isCartLoading;
+    },
     updateOrderInfo(state, orderInfo) {
       state.orderInfo = orderInfo;
     },
@@ -69,10 +73,51 @@ export default new Vuex.Store({
     },
   },
   actions: {
-    loadOrderInfo,
-    loadCart,
-    addProductCart,
-    deleteProductCart,
-    updateCartProductAmount,
+    loadOrderInfo(context, orderId) {
+      getOrderInfo(context, orderId)
+        .then((res) => {
+          context.commit('updateOrderInfo', res.data);
+        });
+    },
+    loadCart(context) {
+      getCart(context)
+        .then((res) => {
+          if (!context.state.userAccessKey) {
+            localStorage.setItem('userAccessKey', res.data.user.accessKey);
+            context.commit('updateUserAccessKey', res.data.user.accessKey);
+          }
+
+          context.commit('updateCardProductsData', res.data.items);
+          context.commit('syncCartProducts');
+        })
+        .finally(() => context.commit('updadeIsCartLoading'));
+    },
+    addProductCart(context, { productOfferId, amount, colorId }) {
+      postProductCart(context, { productOfferId, amount, colorId })
+        .then((res) => {
+          context.commit('updateCardProductsData', res.data.items);
+          context.commit('syncCartProducts');
+        });
+    },
+    deleteProductCart(context, cartProductId) {
+      deleteProductCartRequest(context, cartProductId)
+        .then((res) => {
+          context.commit('updateCardProductsData', res.data.items);
+          context.commit('syncCartProducts');
+        })
+        .catch(() => {
+          context.commit('syncCartProducts');
+        });
+    },
+    // eslint-disable-next-line consistent-return
+    updateCartProductAmount(context, { cartProductId, amount }) {
+      context.commit('updateCartProductAmount', { cartProductId, amount });
+      if (amount < 1) {
+        return null;
+      }
+      putCartProductAmount(context, { cartProductId, amount })
+        .then((res) => context.commit('updateCardProductsData', res.data.items))
+        .catch(() => context.commit('syncCartProducts'));
+    },
   },
 });
